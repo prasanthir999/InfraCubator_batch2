@@ -1,0 +1,15 @@
+cd go-app
+cat > Dockerfile
+
+FROM golang:alpine
+COPY . /go-app
+WORKDIR /go-app
+EXPOSE 8080
+CMD ["go", "run", "main.go"]
+
+docker login
+docker build . -t prasanthir99/my-go-app:v1
+docker run -p 8080:8080 v1
+curl http://localhost:8080/
+docker tag my-go-app prasanthir99/my-go-app:v1
+docker push prasanthir99/my-go-app:v1
