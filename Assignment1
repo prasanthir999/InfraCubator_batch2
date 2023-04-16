@@ -1,0 +1,6 @@
+docker pull nginx
+docker run -p 8080:8080 nginx
+docker ps
+docker logs 5a
+docker exec -it /bin/bash
+docker stop 5a
