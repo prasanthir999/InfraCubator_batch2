@@ -1,0 +1,16 @@
+#created my_volume
+docker volume create my_volume
+
+#attach volume
+docker run -p 8080:8080 -v my_volume:/app my-go-app
+
+#modify my_volume
+vi /data/myfile.txt
+
+#Attached my_volume to another container
+docker run -p8081:8081 -v my_volume:/app my-go-app
+
+#display list with my_volume
+cd /var/lib/docker/volumes/my_volume
+ls -l
+
