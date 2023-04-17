@@ -1,0 +1,12 @@
+#create docker compose file
+cat > dockercompose.yml
+
+version: '3'
+services:
+  my-go-app:
+    build: .
+    ports:
+      - 8080:8080
+  
+ docker-compose up -d
+ docker-compose down
