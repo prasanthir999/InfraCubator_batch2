@@ -9,7 +9,6 @@ CMD ["go", "run", "main.go"]
 
 docker login
 docker build . -t prasanthir99/my-go-app:v1
-docker run -p 8080:8080 v1
+docker run -p 8080:8080 prasanthir99/my-go-app:v1
 curl http://localhost:8080/
-docker tag my-go-app prasanthir99/my-go-app:v1
 docker push prasanthir99/my-go-app:v1
