@@ -1,0 +1,19 @@
+##Pod creation##
+kubectl run metaservice-pod --image=luckyganesh/metadata-service:v1-arm --port=8080
+
+##check logs##
+Kubectl logs metaservice-pod
+
+##check pod ip##
+kubectl get pod metaservice-pod -o jsonpath='{.status.podIP}'
+
+##hit the metadataurl##
+Minikube ssh
+curl http://10.244.0.6:8080/metadata
+
+##Describe pod##
+kubectl describe metaservice-pod
+
+##Execute command in the container##
+kubectl exec -it metaservice-pod -- /bin/sh
+ls -l

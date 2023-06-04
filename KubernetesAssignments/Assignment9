@@ -1,0 +1,99 @@
+##encode the secret
+echo -n "mongodb://mongo/metadata" | base64
+
+##create secret-data.yml
+Cat > secret-data.yml
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mongodb-secret
+type: Opaque
+data:
+  mongodb-url: bW9uZ29kYjovL21vbmdvL21ldGFkYXRh 
+
+## create secret file
+Kubectl create -f secret-data.yml
+
+kubectl get deployment  -o yaml > modified-deployment.yml
+
+ Cat > modified_deployment.yml
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+  creationTimestamp: "2023-06-03T07:40:18Z"
+  generation: 1
+  name: metaservice-deployment
+  namespace: default
+  resourceVersion: "1873"
+  uid: 191b0250-cec0-4f5f-ae46-fc62d6e88c35
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 3
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: metaservice
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: metaservice
+    spec:
+      containers:
+      - image: luckyganesh/metadata-service:v1-arm
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /actuator/health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: metaservice-container
+        envFrom:
+        - secretRef:
+              name: secret-data
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /actuator/health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status:
+  availableReplicas: 3
+  conditions:
+  - lastTransitionTime: "2023-06-03T07:40:53Z"
+    lastUpdateTime: "2023-06-03T07:40:53Z"
+
+Kubectl delete deployment new.yml
+Kubectl create -f modeified_deployment.yml
+
+

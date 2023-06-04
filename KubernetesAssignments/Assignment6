@@ -1,0 +1,79 @@
+##create PV mongo-pv.yaml##
+
+cat > mongo-pv.yaml
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mongo-pv
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: manual
+  hostPath:
+    path: /data
+
+
+ kubectl create -f mongo-pv.yaml
+
+ ##Create PVC mongo-pvc.yaml##
+ cat > mongo-pvc.yaml
+
+ apiVersion: v1
+ kind: PersistentVolumeClaim
+ metadata:
+   name: mongo-pvc
+ spec:
+   accessModes:
+     - ReadWriteOnce
+   resources:
+     requests:
+       storage: 5Gi
+   storageClassName: manual
+
+kubectl create -f mongo-pvc.yaml
+
+## created mongodb deployment object##
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+spec:
+  selector:
+    matchLabels:
+      app: mongodb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: mongo-persistent-storage
+              mountPath: /data/db
+      volumes:
+        - name: mongo-persistent-storage
+          persistentVolumeClaim:
+            claimName: mongo-pvc
+
+
+
+kubectl create -f mongo-deployment.yml
+
+kubectl get pods
+kubectl delete pod mongodb-pod
+kubectl get pods
+
+
+
+

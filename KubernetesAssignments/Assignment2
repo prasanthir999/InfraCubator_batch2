@@ -1,0 +1,71 @@
+
+##create replicaset for metaservice##
+
+cat > replicates-definition.yml
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: metaservice-replicaset
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: metadataservice-pod
+  template:
+    metadata:
+      labels:
+        app: metadataservice-pod
+    spec:
+      containers:
+        - name: metaservice-container
+          image: luckyganesh/metadata-service:v1-arm
+          ports:
+            - containerPort: 8080
+
+
+kubectl create -f replicates-definition.yml
+
+##Adding livenessProbe and readinessProbe##
+cat> deployment-definition.yml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metaservice-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: metaservice
+  template:
+    metadata:
+      labels:
+        app: metaservice
+    spec:
+      containers:
+        - name: metaservice-container
+          image: luckyganesh/metadata-service:v1-arm
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
+
+Kubectl create -f deployment-definition.yml
+
+#### POST Request and GET Request to pod ip##
+kubectl get pod metaservice-deployment-85f885564c-bd256 -o jsonpath='{.status.podIP}'
+
+curl --header "Content-Type: application/json" --request POST --data '{"group":"reyan","name":"city","value":"Pune"}' http://10.244.0.17:8080/metadata
+curl http://10.244.0.17:8080/metadata
+
+kubectl get pod metaservice-deployment-655d6dd5ff-7ctwl -o jsonpath='{.status.podIP}'

@@ -1,0 +1,13 @@
+##create nodeport service##
+kubectl expose deployment metaservice-deployment --type=NodePort  --name=metaservice-container
+
+## get node ip
+Kubectl get cluster-info
+## get nodeport
+kubectl get service
+
+##POST data to the service
+curl --header "Content-Type: application/json" --request POST --data '{"group”:”Sunit”Parekh,”name":"city","value":"Pune"}' http://192.168.49.2:31889/metadata
+
+##Get
+curl http://192.168.49.2:31889/metadata

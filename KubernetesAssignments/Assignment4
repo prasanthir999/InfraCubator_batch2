@@ -1,0 +1,54 @@
+##deploy new pod using mongodb image##
+cat > mongoDBpod.yml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mongodb-pod
+spec:
+  containers:
+    - name: mongodb
+      image: mongo
+      ports:
+        - containerPort: 27017
+
+
+kubectl create -f mongoDBpod.yml
+
+##create clusterip service for mongodb
+cat > mongodb-service.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+spec:
+  selector:
+    app: mongodb-pod
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
+
+Cat > metadataservice-pod.yml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: metadataservice-pod
+spec:
+  containers:
+    - name: metadataservice
+      image: luckyganesh/metadata-service:v2-arm
+      env:
+        - name: MONGODB_URI
+          value: "mongodb://mongo/metadata"
+      ports:
+        - containerPort: 8080
+
+
+## Try again POST and GET reques
+kubectl get cluster-info
+
+curl --header "Content-Type: application/json" --request POST --data '{"group”:”Sunit”Parekh,”name":"city","value":"Pune"}' http://192.168.49.1:31889/metadata
+curl  http://192.168.49.1:31889/metadata
